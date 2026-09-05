@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: sausageos
+          POSTGRES_USER: sausageos
+          POSTGRES_PASSWORD: sausageos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      POSTGRES_DB: sausageos
+      POSTGRES_USER: sausageos
+      POSTGRES_PASSWORD: sausageos
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      DJANGO_SECRET_KEY: ci-secret-key
+      DJANGO_DEBUG: "0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Migrations check
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Tests
+        run: pytest --cov=apps --cov-report=term-missing
