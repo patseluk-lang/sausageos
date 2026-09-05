@@ -141,3 +141,38 @@ def test_expiry_warning_marks_expired_lot(storekeeper_client, raw_warehouse, mat
     )
     response = storekeeper_client.get(reverse("warehouse-lots"), {"q": "SL-OLD"})
     assert "⚠" in response.content.decode()
+
+
+def test_anonymous_is_redirected_to_login(stocked):
+    response = Client().get(reverse("warehouse"))
+    assert response.status_code == 302
+    assert reverse("login") in response["Location"]
+
+
+def test_login_page_is_public():
+    response = Client().get(reverse("login"))
+    assert response.status_code == 200
+    assert "Sign in" in response.content.decode()
+
+
+def test_user_can_log_in_and_out(users):
+    client = Client()
+    assert (
+        client.post(
+            reverse("login"), {"username": "storekeeper", "password": "test12345"}
+        ).status_code
+        == 302
+    )
+    assert client.get(reverse("warehouse")).status_code == 200
+
+    assert client.post(reverse("logout")).status_code == 302
+    assert client.get(reverse("warehouse")).status_code == 302
+
+
+def test_header_shows_user_and_role(users):
+    client = Client()
+    client.force_login(users["storekeeper"])
+    content = client.get(reverse("warehouse")).content.decode()
+    assert "storekeeper" in content
+    assert "Warehouse manager" in content
+    assert "Sign out" in content

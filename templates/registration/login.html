@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Sign in — SausageOS{% endblock %}
+
+{% block content %}
+<section style="max-width:360px;">
+  <h2>Sign in</h2>
+  <div class="card">
+    {% if form.errors %}
+    <div class="error">Incorrect username or password.</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom:12px;">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+      <div style="margin-bottom:16px;">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+      </div>
+      <button type="submit" class="primary">Sign in</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
