@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SausageOS{% endblock %}
+{% block nav_dashboard %}class="active"{% endblock %}
+
+{% block content %}
+<section class="kpis">
+  <div class="kpi"><span>Produced today</span><strong>{{ produced_today }} kg</strong></div>
+  <div class="kpi"><span>Finished goods</span><strong>{{ finished_goods }} kg</strong></div>
+  <div class="kpi"><span>Raw materials</span><strong>{{ raw_materials }} kg</strong></div>
+  <div class="kpi"><span>Revenue</span><strong>{{ revenue }} UAH</strong></div>
+</section>
+
+<section>
+  <h2>Recent production batches</h2>
+  {% if batches %}
+  <table>
+    <tr><th>Batch</th><th>Product</th><th>Output, kg</th><th>Cost, UAH/kg</th>
+        <th>Recommended price</th><th>Yield, %</th></tr>
+    {% for b in batches %}
+    <tr>
+      <td>{{ b.number }}</td><td>{{ b.product }}</td><td>{{ b.quantity }}</td>
+      <td>{{ b.cost_per_kg }}</td><td>{{ b.recommended_price }}</td>
+      <td {% if b.below_norm %}class="warn"{% endif %}>{{ b.yield_percent }}{% if b.below_norm %} ⚠{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">No completed batches yet.</p>{% endif %}
+</section>
+
+<section>
+  <h2>Materials running low</h2>
+  {% if low_stock %}
+  <table>
+    <tr><th>Material</th><th>In stock</th><th>Minimum</th><th>Shortage</th></tr>
+    {% for row in low_stock %}
+    <tr><td>{{ row.material.name }}</td><td>{{ row.on_hand }}</td>
+        <td>{{ row.min_stock }}</td><td class="warn">{{ row.deficit }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">All stock levels are within limits.</p>{% endif %}
+</section>
+
+<section>
+  <h2>Orders</h2>
+  {% if orders %}
+  <table>
+    <tr><th>Number</th><th>Customer</th><th>Status</th><th>Total, UAH</th></tr>
+    {% for o in orders %}
+    <tr><td>{{ o.number }}</td><td>{{ o.customer.name }}</td>
+        <td>{{ o.get_status_display }}</td><td>{{ o.total }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="empty">No orders yet.</p>{% endif %}
+</section>
+{% endblock %}

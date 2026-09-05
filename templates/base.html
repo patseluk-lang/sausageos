@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}SausageOS{% endblock %}</title>
+<script src="https://unpkg.com/htmx.org@2.0.4"></script>
+<style>
+  :root { --bg:#faf7f2; --card:#fff; --ink:#241c17; --muted:#7a6a5f; --line:#e6ddd2;
+          --accent:#a33b1f; --ok:#3d6b45; --warn:#8a6a12; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { padding:20px 32px; border-bottom:1px solid var(--line); display:flex;
+           align-items:baseline; gap:24px; flex-wrap:wrap; }
+  h1 { margin:0; font-size:19px; letter-spacing:.02em; }
+  nav a { color:var(--muted); text-decoration:none; font-size:14px; margin-right:16px; }
+  nav a:hover, nav a.active { color:var(--accent); }
+  main { padding:24px 32px; max-width:1200px; }
+  section { margin-bottom:32px; }
+  h2 { font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  table { width:100%; border-collapse:collapse; background:var(--card);
+          border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th, td { padding:9px 12px; text-align:left; font-size:14px; border-bottom:1px solid var(--line);
+           vertical-align:middle; }
+  th { background:#f3ece3; font-weight:600; font-size:13px; }
+  tr:last-child td { border-bottom:none; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .kpi span { display:block; color:var(--muted); font-size:12px; text-transform:uppercase;
+              letter-spacing:.06em; }
+  .kpi strong { font-size:24px; font-weight:600; }
+  .warn { color:var(--accent); font-weight:600; }
+  .soon { color:var(--warn); font-weight:600; }
+  .empty { color:var(--muted); font-size:14px; }
+  .note { background:#eef4ee; border:1px solid #cfe0d0; color:var(--ok); padding:8px 12px;
+          border-radius:8px; font-size:14px; margin-bottom:12px; }
+  .error { background:#fbeeea; border:1px solid #edcfc6; color:var(--accent); padding:8px 12px;
+           border-radius:8px; font-size:14px; margin-bottom:12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; }
+  label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  input, select { width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:7px;
+                  background:#fff; font-size:14px; font-family:inherit; }
+  button { padding:7px 14px; border:1px solid var(--line); border-radius:7px; background:#f3ece3;
+           font-size:13px; font-family:inherit; cursor:pointer; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  button:hover { filter:brightness(.97); }
+  .inline { display:flex; gap:6px; align-items:center; }
+  .inline input { width:88px; }
+  .inline input.reason { width:120px; }
+  ul.errorlist { margin:4px 0 0; padding-left:16px; color:var(--accent); font-size:12px; }
+  .htmx-request { opacity:.6; }
+  .user { margin-left:auto; display:flex; align-items:center; gap:10px;
+          font-size:13px; color:var(--muted); }
+  .user form { margin:0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SausageOS</h1>
+  <nav>
+    <a href="{% url 'dashboard' %}" {% block nav_dashboard %}{% endblock %}>Dashboard</a>
+    <a href="{% url 'warehouse' %}" {% block nav_warehouse %}{% endblock %}>Warehouse</a>
+    <a href="/api/docs/">API</a>
+    {% if user.is_staff %}<a href="/admin/">Admin</a>{% endif %}
+  </nav>
+  {% if user.is_authenticated %}
+  <div class="user">
+    <span>{{ user.username }} — {{ user.get_role_display }}</span>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Sign out</button>
+    </form>
+  </div>
+  {% endif %}
+</header>
+<main>{% block content %}{% endblock %}</main>
+</body>
+</html>
