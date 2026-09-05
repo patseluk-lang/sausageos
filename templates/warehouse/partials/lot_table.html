@@ -1,0 +1,12 @@
+{% if rows %}
+<table>
+  <tr>
+    <th>Lot</th><th>Item</th><th>Warehouse</th><th>Supplier batch</th>
+    <th>Expires</th><th>In stock</th><th>Reserved</th><th>Available</th>
+    <th>Stock take</th><th>Write-off</th>
+  </tr>
+  {% for row in rows %}{% include "warehouse/partials/lot_row.html" %}{% endfor %}
+</table>
+{% else %}
+<p class="empty">No lots with stock found.</p>
+{% endif %}

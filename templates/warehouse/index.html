@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Warehouse — SausageOS{% endblock %}
+{% block nav_warehouse %}class="active"{% endblock %}
+
+{% block content %}
+<section>
+  <h2>Goods receipt</h2>
+  <div id="receive-block" class="card">
+    {% include "warehouse/partials/receive_form.html" %}
+  </div>
+</section>
+
+{% if low_stock %}
+<section>
+  <h2>Below minimum stock</h2>
+  <table>
+    <tr><th>Material</th><th>In stock</th><th>Minimum</th><th>Shortage</th></tr>
+    {% for row in low_stock %}
+    <tr>
+      <td>{{ row.material.name }}</td><td>{{ row.on_hand }}</td>
+      <td>{{ row.min_stock }}</td><td class="warn">{{ row.deficit }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</section>
+{% endif %}
+
+<section>
+  <h2>Stock by lot</h2>
+  <div id="filters" class="grid" style="margin-bottom:12px;">
+    <div>
+      <label for="q">Search by lot code</label>
+      <input type="search" id="q" name="q" value="{{ query }}" placeholder="PORK-2026-0815"
+             hx-get="{% url 'warehouse-lots' %}" hx-target="#lot-table" hx-include="#filters"
+             hx-trigger="keyup changed delay:300ms, search">
+    </div>
+    <div>
+      <label for="warehouse">Warehouse</label>
+      <select id="warehouse" name="warehouse" hx-get="{% url 'warehouse-lots' %}"
+              hx-target="#lot-table" hx-include="#filters" hx-trigger="change">
+        <option value="">all</option>
+        {% for w in warehouses %}
+        <option value="{{ w.id }}" {% if selected_warehouse == w.id|stringformat:"s" %}selected{% endif %}>
+          {{ w.code }} — {{ w.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="kind">Type</label>
+      <select id="kind" name="kind" hx-get="{% url 'warehouse-lots' %}"
+              hx-target="#lot-table" hx-include="#filters" hx-trigger="change">
+        <option value="">everything</option>
+        <option value="material">materials</option>
+        <option value="product">finished goods</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="lot-table" hx-get="{% url 'warehouse-lots' %}" hx-trigger="lotsChanged from:body"
+       hx-include="#filters">
+    {% include "warehouse/partials/lot_table.html" %}
+  </div>
+</section>
+{% endblock %}

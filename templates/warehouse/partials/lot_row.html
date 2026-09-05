@@ -1,0 +1,30 @@
+<tr id="lot-{{ row.lot.pk }}">
+  <td>{{ row.lot.lot_code }}</td>
+  <td>{{ row.lot.item_name }}</td>
+  <td>{{ row.lot.warehouse.code }}</td>
+  <td>{{ row.lot.supplier_batch_code|default:"—" }}</td>
+  <td class="{% if row.expired %}warn{% elif row.expires_soon %}soon{% endif %}">
+    {{ row.lot.expiry_date|default:"—" }}{% if row.expired %} ⚠{% endif %}
+  </td>
+  <td>{{ row.on_hand }}</td>
+  <td>{{ row.reserved }}</td>
+  <td>{{ row.available }}</td>
+  <td>
+    <form class="inline" hx-post="{% url 'warehouse-stock-take' row.lot.pk %}"
+          hx-target="#lot-{{ row.lot.pk }}" hx-swap="outerHTML">
+      {% csrf_token %}
+      <input type="number" step="0.001" min="0" name="counted_quantity" placeholder="counted" required>
+      <button type="submit">Count</button>
+    </form>
+  </td>
+  <td>
+    <form class="inline" hx-post="{% url 'warehouse-write-off' row.lot.pk %}"
+          hx-target="#lot-{{ row.lot.pk }}" hx-swap="outerHTML">
+      {% csrf_token %}
+      <input type="number" step="0.001" min="0" name="quantity" placeholder="qty" required>
+      <input type="text" class="reason" name="reason" placeholder="reason" required>
+      <button type="submit">Write off</button>
+    </form>
+    {% if error %}<div class="error" style="margin-top:6px;">{{ error }}</div>{% endif %}
+  </td>
+</tr>

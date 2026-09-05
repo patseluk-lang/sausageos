@@ -1,0 +1,17 @@
+{% if message %}<div class="note">{{ message }}</div>{% endif %}
+{% if receive_form.non_field_errors %}<div class="error">{{ receive_form.non_field_errors }}</div>{% endif %}
+<form hx-post="{% url 'warehouse-receive' %}" hx-target="#receive-block" hx-swap="innerHTML">
+  {% csrf_token %}
+  <div class="grid">
+    {% for field in receive_form %}
+    <div>
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+    </div>
+    {% endfor %}
+  </div>
+  <div style="margin-top:14px;">
+    <button type="submit" class="primary">Receive</button>
+  </div>
+</form>

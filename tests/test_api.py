@@ -155,3 +155,10 @@ def test_inventory_and_recall_endpoints(
 def test_swagger_schema_available(client, users):
     response = auth(client, users["admin"]).get("/api/schema/")
     assert response.status_code == 200
+
+
+def test_dashboard_page_renders(client, users, product):
+    client.force_login(users["technologist"])
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "SausageOS" in response.content.decode()
