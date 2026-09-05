@@ -5,9 +5,21 @@ import pytest
 
 from apps.catalog.models import Material, MaterialCategory, Product, Supplier, Unit
 from apps.core.models import Role, User
+from apps.inventory import services as inventory
+from apps.inventory.models import Warehouse
 from apps.recipes.models import LineBasis, Recipe, RecipeLine, RecipeVersion
 
 TODAY = date(2026, 9, 1)
+
+
+@pytest.fixture
+def raw_warehouse(db):
+    return Warehouse.objects.create(code="RAW", name="Raw material warehouse")
+
+
+@pytest.fixture
+def fg_warehouse(db):
+    return Warehouse.objects.create(code="FG", name="Finished goods warehouse")
 
 
 @pytest.fixture
@@ -70,4 +82,47 @@ def recipe_version(db, product, materials):
     version.activate()
     version.refresh_from_db()
     return version
+
+
+@pytest.fixture
+def stocked(db, raw_warehouse, supplier, materials):
+    """Material in stock: pork in three lots at different prices."""
+    lots = {}
+    for code, price, qty, days in [
+        ("PORK-2026-0801", "165", 100, 3),
+        ("PORK-2026-0815", "172", 100, 6),
+        ("PORK-2026-0828", "181", 100, 9),
+    ]:
+        lots[code] = inventory.receive(
+            warehouse=raw_warehouse,
+            lot_code=f"SL-{code}",
+            material=materials["PORK"],
+            supplier=supplier,
+            supplier_batch_code=code,
+            document=f"GRN-{code}",
+            quantity=qty,
+            unit_cost=price,
+            received_at=TODAY,
+            expiry_date=TODAY + timedelta(days=days),
+        )
+    for sku, code, price, qty in [
+        ("BEEF", "BEEF-2026-0820", "245", 100),
+        ("FAT", "FAT-2026-0820", "95", 100),
+        ("SALT-N", "SALT-2026-0701", "48", 20),
+        ("CASING45", "CAS-2026-0610", "6.5", 500),
+        ("VACBAG", "BAG-2026-0610", "3.2", 500),
+    ]:
+        lots[code] = inventory.receive(
+            warehouse=raw_warehouse,
+            lot_code=f"SL-{code}",
+            material=materials[sku],
+            supplier=supplier,
+            supplier_batch_code=code,
+            document=f"GRN-{code}",
+            quantity=qty,
+            unit_cost=price,
+            received_at=TODAY,
+            expiry_date=TODAY + timedelta(days=60),
+        )
+    return lots
 

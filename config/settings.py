@@ -26,6 +26,9 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.catalog",
     "apps.recipes",
+    "apps.inventory",
+    "apps.production",
+    "apps.sales",
 ]
 
 MIDDLEWARE = [
