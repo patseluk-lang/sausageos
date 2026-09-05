@@ -126,3 +126,19 @@ def stocked(db, raw_warehouse, supplier, materials):
         )
     return lots
 
+
+@pytest.fixture
+def users(db):
+    result = {}
+    for username, role in [
+        ("admin", Role.ADMIN),
+        ("technologist", Role.PRODUCTION_MANAGER),
+        ("storekeeper", Role.WAREHOUSE_MANAGER),
+        ("accountant", Role.ACCOUNTANT),
+        ("sales", Role.SALES_MANAGER),
+    ]:
+        user = User.objects.create_user(username=username, password="test12345")
+        user.role = role
+        user.save()
+        result[username] = user
+    return result

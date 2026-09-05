@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "apps.production",
     "apps.sales",
     "apps.traceability",
+    "apps.api",
 ]
 
 MIDDLEWARE = [
